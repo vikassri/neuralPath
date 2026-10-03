@@ -1,8 +1,108 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 
+@custom-variant dark (&:is(.dark *));
+
+/* ─────────────────────────────────────────────────────
+   DESIGN TOKENS — "Stellar" Professional Theme
+   ───────────────────────────────────────────────────── */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* === Page backgrounds (layered depth) === */
+  --bg-page:       #080d1c;   /* deepest — page body */
+  --bg-surface:    #0c1226;   /* section surfaces */
+  --bg-card:       #111a31;   /* card background */
+  --bg-card-hover: #162038;   /* card on hover */
+  --bg-elevated:   #1a273f;   /* modals, popovers */
+
+  /* === Text hierarchy === */
+  --text-primary:   #dde4f0;  /* headlines, bold */
+  --text-body:      #b8c4d9;  /* body copy — readable, not harsh */
+  --text-secondary: #7a8db0;  /* subtitles, labels */
+  --text-muted:     #3e4f6a;  /* hints, disabled */
+
+  /* === Borders === */
+  --border-subtle:  rgba(255,255,255,0.05);
+  --border-default: rgba(255,255,255,0.09);
+  --border-strong:  rgba(255,255,255,0.16);
+  --border-focus:   rgba(99,102,241,0.6);
+
+  /* === Brand accents === */
+  --indigo:   #6366f1;
+  --blue:     #4f8ef7;
+  --cyan:     #22d3ee;
+  --emerald:  #34d399;
+  --amber:    #fbbf24;
+  --rose:     #fb7185;
+  --purple:   #a78bfa;
+  --teal:     #2dd4bf;
+
+  /* === shadcn compat === */
+  --background: #080d1c;
+  --foreground:  #dde4f0;
+  --card:        #111a31;
+  --card-foreground: #dde4f0;
+  --popover:     #111a31;
+  --popover-foreground: #dde4f0;
+  --primary:     #6366f1;
+  --primary-foreground: #ffffff;
+  --secondary:   #162038;
+  --secondary-foreground: #dde4f0;
+  --muted:       #162038;
+  --muted-foreground: #7a8db0;
+  --accent:      #1a273f;
+  --accent-foreground: #dde4f0;
+  --destructive: #fb7185;
+  --border:      rgba(255,255,255,0.09);
+  --input:       rgba(255,255,255,0.08);
+  --ring:        rgba(99,102,241,0.5);
+  --radius:      0.5rem;
+
+  /* Sidebar */
+  --sidebar:                  #0c1226;
+  --sidebar-foreground:       #dde4f0;
+  --sidebar-primary:          #6366f1;
+  --sidebar-primary-foreground: #fff;
+  --sidebar-accent:           #162038;
+  --sidebar-accent-foreground:#dde4f0;
+  --sidebar-border:           rgba(255,255,255,0.07);
+  --sidebar-ring:             rgba(99,102,241,0.5);
+
+  /* Charts */
+  --chart-1: #6366f1;
+  --chart-2: #22d3ee;
+  --chart-3: #34d399;
+  --chart-4: #fbbf24;
+  --chart-5: #fb7185;
+
+  /* Radius tokens */
+  --radius-sm:  calc(var(--radius) * 0.6);
+  --radius-md:  calc(var(--radius) * 0.85);
+  --radius-lg:  var(--radius);
+  --radius-xl:  calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 2);
+
+  /* Category colors (module topics) */
+  --cat-architecture: #4f8ef7;
+  --cat-training:     #a78bfa;
+  --cat-retrieval:    #34d399;
+  --cat-agents:       #fbbf24;
+  --cat-protocols:    #22d3ee;
+  --cat-compression:  #fb7185;
+  --cat-multimodal:   #818cf8;
+  --cat-audio:        #86efac;
+  --cat-data:         #fdba74;
+  --cat-security:     #fb7185;
+  --cat-production:   #2dd4bf;
+}
+
+/* Dark theme tokens (same as root — we're always dark) */
+.dark {
+  --background: #080d1c;
+  --foreground: #dde4f0;
+  --border:     rgba(255,255,255,0.09);
+  --input:      rgba(255,255,255,0.08);
+  --ring:       rgba(99,102,241,0.5);
 }
 
 @theme inline {
@@ -10,17 +110,237 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
+  --radius-2xl: var(--radius-2xl);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* ─────────────────────────────────────────────────────
+   BASE RESET
+   ───────────────────────────────────────────────────── */
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
   }
+  html {
+    background-color: var(--bg-page);
+    color: var(--text-body);
+    font-feature-settings: "cv02","cv03","cv04","cv11";
+    -webkit-font-smoothing: antialiased;
+  }
+  body {
+    background-color: var(--bg-page);
+    color: var(--text-body);
+    line-height: 1.65;
+  }
+  h1, h2, h3, h4 {
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+  }
+  p { line-height: 1.75; }
+  a { color: var(--blue); }
+  a:hover { color: var(--text-primary); }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* ─────────────────────────────────────────────────────
+   SCROLLBAR
+   ───────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+
+/* ─────────────────────────────────────────────────────
+   TYPOGRAPHY UTILITIES
+   ───────────────────────────────────────────────────── */
+.text-gradient {
+  background: linear-gradient(135deg, #fff 10%, var(--text-secondary) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.text-gradient-brand {
+  background: linear-gradient(135deg, #818cf8 0%, #6366f1 40%, #22d3ee 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.text-gradient-accent {
+  background: linear-gradient(135deg, #4f8ef7 0%, #818cf8 50%, #34d399 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Keep these for backward compat — inline the CSS directly (no @apply on custom classes) */
+.gradient-text {
+  background: linear-gradient(135deg, #fff 10%, var(--text-secondary) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.gradient-text-accent {
+  background: linear-gradient(135deg, #4f8ef7 0%, #818cf8 50%, #34d399 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ─────────────────────────────────────────────────────
+   SURFACE / CARD UTILITIES
+   ───────────────────────────────────────────────────── */
+.surface {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+}
+.card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: 16px;
+}
+.card-elevated {
+  background-color: var(--bg-elevated);
+  border: 1px solid var(--border-strong);
+  border-radius: 16px;
+}
+
+/* ─────────────────────────────────────────────────────
+   MODULE CARD
+   ───────────────────────────────────────────────────── */
+.module-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: 16px;
+  transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+}
+.module-card:hover {
+  border-color: var(--border-strong);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.06);
+}
+
+/* ─────────────────────────────────────────────────────
+   GLOW UTILITIES
+   ───────────────────────────────────────────────────── */
+.glow-indigo { box-shadow: 0 0 24px rgba(99,102,241,0.18); }
+.glow-blue   { box-shadow: 0 0 24px rgba(79,142,247,0.18); }
+.glow-cyan   { box-shadow: 0 0 24px rgba(34,211,238,0.18); }
+.glow-green  { box-shadow: 0 0 24px rgba(52,211,153,0.18); }
+
+/* ─────────────────────────────────────────────────────
+   CHAT MESSAGES
+   ───────────────────────────────────────────────────── */
+.chat-message-user {
+  background: rgba(79,142,247,0.1);
+  border: 1px solid rgba(79,142,247,0.2);
+}
+.chat-message-ai {
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+}
+
+/* ─────────────────────────────────────────────────────
+   QUIZ OPTIONS
+   ───────────────────────────────────────────────────── */
+.quiz-option {
+  transition: border-color 0.15s, background 0.15s, transform 0.1s;
+  cursor: pointer;
+}
+.quiz-option:hover:not(.selected) {
+  border-color: rgba(255,255,255,0.25);
+  background: rgba(255,255,255,0.04);
+  transform: translateX(3px);
+}
+.quiz-option.correct {
+  border-color: var(--emerald);
+  background: rgba(52,211,153,0.08);
+}
+.quiz-option.incorrect {
+  border-color: var(--rose);
+  background: rgba(251,113,133,0.08);
+}
+
+/* ─────────────────────────────────────────────────────
+   PROSE (study content)
+   ───────────────────────────────────────────────────── */
+.prose-study {
+  color: var(--text-body);
+  font-size: 16px;
+  line-height: 1.85;
+  max-width: 68ch;
+}
+.prose-study strong { color: var(--text-primary); font-weight: 600; }
+.prose-study code {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-default);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.875em;
+  color: var(--cyan);
+}
+
+/* ─────────────────────────────────────────────────────
+   ANIMATIONS
+   ───────────────────────────────────────────────────── */
+@keyframes marquee {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.animate-marquee { animation: marquee 40s linear infinite; }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-up { animation: fadeUp 0.45s ease forwards; }
+
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position:  200% center; }
+}
+.shimmer {
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.06) 50%, transparent 100%);
+  background-size: 200% auto;
+  animation: shimmer 2.5s linear infinite;
+}
+
+/* ─────────────────────────────────────────────────────
+   FOCUS RING (accessibility)
+   ───────────────────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--indigo);
+  outline-offset: 2px;
+  border-radius: 4px;
 }
