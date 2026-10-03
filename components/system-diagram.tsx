@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef, useId, useCallback, useEffect } from "react"
+import { useState, useRef, useId } from "react"
 import type { Diagram, DiagramNode, DiagramEdge } from "@/lib/diagrams"
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -317,14 +317,7 @@ function DiagramCanvas({
   // Pan state stored in the viewBox offset
   const [pan, setPan] = useState({ x: 0, y: 0 })
   const [zoom, setZoom] = useState(1)
-
-  // Reset when diagram changes
-  useEffect(() => {
-    setPositions(Object.fromEntries(diagram.nodes.map(n => [n.id, { x: n.x, y: n.y }])))
-    setPan({ x: 0, y: 0 })
-    setZoom(1)
-    onSelect(null)
-  }, [diagram.id]) // eslint-disable-line react-hooks/exhaustive-deps
+  const [isPanning, setIsPanning] = useState(false)
 
   const resetLayout = () => {
     setPositions(Object.fromEntries(diagram.nodes.map(n => [n.id, { x: n.x, y: n.y }])))
@@ -369,6 +362,7 @@ function DiagramCanvas({
     if ((e.target as Element).tagName === "svg" || (e.target as Element).tagName === "rect") {
       const svgPt = clientToSVG(e.clientX, e.clientY)
       dragRef.current = { kind: "pan", ox: svgPt.x, oy: svgPt.y }
+      setIsPanning(true)
     }
   }
 
@@ -394,6 +388,7 @@ function DiagramCanvas({
   // ── Pointer up ────────────────────────────────────────────────────
   function onSVGPointerUp() {
     dragRef.current = null
+    setIsPanning(false)
   }
 
   // ── Wheel zoom ────────────────────────────────────────────────────
@@ -444,7 +439,7 @@ function DiagramCanvas({
           backgroundColor: "#080808",
           border: "1px solid rgba(255,255,255,0.08)",
           boxShadow: "0 0 0 1px rgba(255,255,255,0.04), inset 0 0 80px rgba(0,0,0,0.35)",
-          cursor: dragRef.current?.kind === "pan" ? "grabbing" : "default",
+          cursor: isPanning ? "grabbing" : "default",
           minHeight: "340px",
           touchAction: "none",
         }}
@@ -638,7 +633,7 @@ function FlowPanel({
                       {edge.label && (
                         <div className="text-xs mt-0.5 font-mono"
                           style={{ color: srcColor, opacity: 0.85 }}>
-                          via "{edge.label}"
+                          via &quot;{edge.label}&quot;
                         </div>
                       )}
                       {edge.dashed && (
@@ -679,7 +674,7 @@ function FlowPanel({
                       {edge.label && (
                         <div className="text-xs mt-0.5 font-mono"
                           style={{ color: dstColor, opacity: 0.85 }}>
-                          via "{edge.label}"
+                          via &quot;{edge.label}&quot;
                         </div>
                       )}
                       {edge.bidirectional && (

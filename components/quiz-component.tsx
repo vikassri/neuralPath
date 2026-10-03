@@ -1,12 +1,11 @@
 "use client"
 
-import { useState, useCallback, useEffect } from "react"
-import { CheckCircle2, XCircle, Trophy, RotateCcw, ChevronRight } from "lucide-react"
+import { useState, useCallback } from "react"
+import { CheckCircle2, XCircle, RotateCcw, ChevronRight } from "lucide-react"
 import type { QuizQuestion } from "@/lib/modules"
 
 interface QuizComponentProps {
   questions: QuizQuestion[]
-  moduleSlug: string
   onComplete: (score: number) => void
 }
 
@@ -17,18 +16,10 @@ export function QuizComponent({ questions, onComplete }: QuizComponentProps) {
   const [answers, setAnswers] = useState<Record<string, AnswerState>>({})
   const [showResult, setShowResult] = useState(false)
   const [quizComplete, setQuizComplete] = useState(false)
-  const [slideIn, setSlideIn] = useState(true)
 
   const currentQuestion = questions[currentIndex]
   const currentAnswer = answers[currentQuestion?.id]
   const hasAnswered = Boolean(currentAnswer)
-
-  // Animate in on question change
-  useEffect(() => {
-    setSlideIn(false)
-    const t = setTimeout(() => setSlideIn(true), 30)
-    return () => clearTimeout(t)
-  }, [currentIndex])
 
   const handleSelectOption = useCallback(
     (optionIndex: number) => {
@@ -142,11 +133,7 @@ export function QuizComponent({ questions, onComplete }: QuizComponentProps) {
 
   /* ── Question screen ── */
   return (
-    <div style={{
-      opacity: slideIn ? 1 : 0,
-      transform: slideIn ? "translateX(0)" : "translateX(16px)",
-      transition: "opacity 0.3s ease, transform 0.3s ease",
-    }}>
+    <div key={currentIndex} className="quiz-question-enter">
       {/* Progress */}
       <div className="flex items-center justify-between mb-3">
         <span className="font-medium" style={{ color: "var(--text-secondary)", fontSize: "14px" }}>

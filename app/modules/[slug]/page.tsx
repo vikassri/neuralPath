@@ -6,6 +6,7 @@ import Link from "next/link"
 import {
   getModuleBySlug, getAdjacentModules, CATEGORY_COLORS, modules, type Module,
 } from "@/lib/modules"
+import { markModuleCompleted, useCompletedModules } from "@/lib/completed-modules"
 import { QuizComponent }   from "@/components/quiz-component"
 import { ChatInterface }   from "@/components/chat-interface"
 import { TechStackGrid }   from "@/components/tech-stack-grid"
@@ -17,24 +18,6 @@ import {
   MessageSquare, Trophy, ChevronDown, ChevronUp,
   Layers, GraduationCap, Network, Clock, Brain,
 } from "lucide-react"
-
-// ─── Completed modules hook ────────────────────────────────────────────────────
-function useCompletedModules() {
-  const [completed, setCompleted] = useState<string[]>([])
-  useEffect(() => {
-    try { setCompleted(JSON.parse(localStorage.getItem("completedModules") || "[]")) }
-    catch { setCompleted([]) }
-  }, [])
-  const markComplete = useCallback((slug: string) => {
-    setCompleted(prev => {
-      if (prev.includes(slug)) return prev
-      const next = [...prev, slug]
-      localStorage.setItem("completedModules", JSON.stringify(next))
-      return next
-    })
-  }, [])
-  return { completed, markComplete }
-}
 
 // ─── Section fade-in wrapper ──────────────────────────────────────────────────
 function FadeSection({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
@@ -269,22 +252,22 @@ function LearnTab({ module, accentColor, onStartQuiz }: {
 // ─── Main module page ─────────────────────────────────────────────────────────
 export default function ModulePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug }   = use(params)
-  const module     = getModuleBySlug(slug)
-  if (!module) notFound()
+  const learningModule = getModuleBySlug(slug)
+  if (!learningModule) notFound()
 
   const { prev, next } = getAdjacentModules(slug)
-  const { completed, markComplete } = useCompletedModules()
+  const completed = useCompletedModules()
   const isCompleted  = completed.includes(slug)
   const [activeTab, setActiveTab] = useState<Tab>("learn")
   const [quizScore, setQuizScore] = useState<number | null>(null)
 
-  const accentColor = CATEGORY_COLORS[module.category]
+  const accentColor = CATEGORY_COLORS[learningModule.category]
   const moduleIndex = modules.findIndex(m => m.slug === slug)
 
   const handleQuizComplete = useCallback((score: number) => {
     setQuizScore(score)
-    if (score >= Math.ceil(module.quizQuestions.length * 0.6)) markComplete(slug)
-  }, [slug, markComplete, module.quizQuestions.length])
+    if (score >= Math.ceil(learningModule.quizQuestions.length * 0.6)) markModuleCompleted(slug)
+  }, [slug, learningModule.quizQuestions.length])
 
   const handleTabChange = (tab: Tab) => {
     setActiveTab(tab)
@@ -339,7 +322,7 @@ export default function ModulePage({ params }: { params: Promise<{ slug: string 
                 border: `1px solid ${accentColor}22`,
                 boxShadow: `0 0 30px ${accentColor}15`,
               }}>
-              {module.emoji}
+              {learningModule.emoji}
             </div>
 
             <div className="flex-1 min-w-0">
@@ -347,13 +330,13 @@ export default function ModulePage({ params }: { params: Promise<{ slug: string 
               <div className="flex flex-wrap items-center gap-3 mb-3">
                 <span className="text-xs font-bold px-2.5 py-1 rounded-md tracking-wider uppercase"
                   style={{ backgroundColor: `${accentColor}16`, color: accentColor, border: `1px solid ${accentColor}28` }}>
-                  {module.category}
+                  {learningModule.category}
                 </span>
                 <span className="flex items-center gap-1 text-xs" style={{ color: "var(--text-muted)" }}>
-                  <Clock size={10} /> ~{Math.ceil(module.keyConcepts.length * 2 + module.quizQuestions.length * 0.5)} min
+                  <Clock size={10} /> ~{Math.ceil(learningModule.keyConcepts.length * 2 + learningModule.quizQuestions.length * 0.5)} min
                 </span>
                 <span className="text-xs" style={{ color: "var(--text-muted)" }}>
-                  {module.keyConcepts.length} concepts · {module.quizQuestions.length} quiz questions
+                  {learningModule.keyConcepts.length} concepts · {learningModule.quizQuestions.length} quiz questions
                 </span>
                 {isCompleted && (
                   <div className="flex items-center gap-1 text-xs font-semibold" style={{ color: "var(--emerald)" }}>
@@ -364,10 +347,10 @@ export default function ModulePage({ params }: { params: Promise<{ slug: string 
 
               <h1 className="font-black mb-2.5 leading-tight"
                 style={{ color: "var(--text-primary)", fontSize: "clamp(22px,4vw,34px)" }}>
-                {module.title}
+                {learningModule.title}
               </h1>
               <p style={{ color: "var(--text-secondary)", fontSize: "16px", lineHeight: "1.65" }}>
-                {module.description}
+                {learningModule.description}
               </p>
             </div>
           </div>
@@ -380,13 +363,13 @@ export default function ModulePage({ params }: { params: Promise<{ slug: string 
           activeTab={activeTab}
           onTabChange={handleTabChange}
           quizScore={quizScore}
-          totalQuestions={module.quizQuestions.length}
+          totalQuestions={learningModule.quizQuestions.length}
           accentColor={accentColor}
         />
 
         {/* Learn */}
         {activeTab === "learn" && (
-          <LearnTab module={module} accentColor={accentColor} onStartQuiz={() => handleTabChange("quiz")} />
+          <LearnTab module={learningModule} accentColor={accentColor} onStartQuiz={() => handleTabChange("quiz")} />
         )}
 
         {/* Quiz */}
@@ -398,11 +381,11 @@ export default function ModulePage({ params }: { params: Promise<{ slug: string 
                   Knowledge Check
                 </h2>
                 <p style={{ color: "var(--text-secondary)", fontSize: "15px" }}>
-                  {module.quizQuestions.length} questions · score ≥ 60% to complete this module
+                  {learningModule.quizQuestions.length} questions · score ≥ 60% to complete this module
                 </p>
               </div>
-              <QuizComponent key={slug} questions={module.quizQuestions}
-                moduleSlug={slug} onComplete={handleQuizComplete} />
+              <QuizComponent key={slug} questions={learningModule.quizQuestions}
+                onComplete={handleQuizComplete} />
             </div>
           </FadeSection>
         )}
@@ -416,11 +399,11 @@ export default function ModulePage({ params }: { params: Promise<{ slug: string 
                   AI Tutor
                 </h2>
                 <p style={{ color: "var(--text-secondary)", fontSize: "15px" }}>
-                  Ask anything about <span className="font-semibold" style={{ color: "var(--text-primary)" }}>{module.title}</span>.
+                  Ask anything about <span className="font-semibold" style={{ color: "var(--text-primary)" }}>{learningModule.title}</span>.
                   The model is primed as an expert on this specific topic.
                 </p>
               </div>
-              <ChatInterface moduleSlug={module.slug} moduleTitle={module.title} />
+              <ChatInterface moduleSlug={learningModule.slug} moduleTitle={learningModule.title} />
             </div>
           </FadeSection>
         )}

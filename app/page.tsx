@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import { modules, CATEGORY_COLORS, type Module } from "@/lib/modules"
+import { useCompletedModules } from "@/lib/completed-modules"
 import {
   CheckCircle, Zap, Brain, BookOpen, MessageSquare,
   ChevronRight, Network, BarChart2, Clock, Filter,
@@ -21,12 +22,6 @@ const DURATIONS: Record<string, string> = {
   "synthetic-data-engineering":  "25 min",
   "ai-security-rbac":            "20 min",
   "llmops-observability":        "30 min",
-}
-
-function getCompletedModules(): string[] {
-  if (typeof window === "undefined") return []
-  try { return JSON.parse(localStorage.getItem("completedModules") || "[]") }
-  catch { return [] }
 }
 
 // ─── Module Card ──────────────────────────────────────────────────────────────
@@ -109,12 +104,11 @@ function ModuleCard({
 
 // ─── Landing Page ─────────────────────────────────────────────────────────────
 export default function HomePage() {
-  const [completedModules, setCompletedModules] = useState<string[]>([])
+  const completedModules = useCompletedModules()
   const [heroVisible, setHeroVisible] = useState(false)
   const [activeCategory, setActiveCategory] = useState("All")
 
   useEffect(() => {
-    setCompletedModules(getCompletedModules())
     const t = setTimeout(() => setHeroVisible(true), 50)
     return () => clearTimeout(t)
   }, [])

@@ -35,7 +35,8 @@ export function Flashcard({ cards, accentColor = "#6366f1" }: FlashcardProps) {
   const toggleMastered = () => {
     setMastered(prev => {
       const next = new Set(prev)
-      next.has(currentIndex) ? next.delete(currentIndex) : next.add(currentIndex)
+      if (next.has(currentIndex)) next.delete(currentIndex)
+      else next.add(currentIndex)
       return next
     })
   }

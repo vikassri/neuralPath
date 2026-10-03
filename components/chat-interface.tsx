@@ -1,6 +1,7 @@
 "use client"
 
-import { useRef, useEffect, useState, FormEvent } from "react"
+import { useRef, useEffect } from "react"
+import type { FormEvent } from "react"
 import { useChat } from "ai/react"
 import { Send, Bot, User, Loader2, Sparkles, RefreshCw } from "lucide-react"
 
@@ -22,9 +23,8 @@ export function ChatInterface({
   ],
 }: ChatInterfaceProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null)
-  const [localInput, setLocalInput] = useState("")
 
-  const { messages, input, handleInputChange, handleSubmit, isLoading, error, reload } = useChat({
+  const { messages, input, handleInputChange, handleSubmit, append, isLoading, error, reload } = useChat({
     api: "/api/chat",
     body: { moduleSlug },
     initialMessages: [
@@ -34,9 +34,6 @@ export function ChatInterface({
         content: `Hi! I'm your AI tutor for **${moduleTitle}**.\n\nAsk me anything — concepts, code examples, architecture tradeoffs, or real-world applications. I'll give you clear, practical answers.\n\nWhat would you like to explore?`,
       },
     ],
-    onFinish: () => {
-      setLocalInput("")
-    },
   })
 
   useEffect(() => {
@@ -47,20 +44,10 @@ export function ChatInterface({
     e.preventDefault()
     if (!input.trim() || isLoading) return
     handleSubmit(e)
-    setLocalInput("")
   }
 
   const handleSuggestionClick = (question: string) => {
-    // Directly set value and submit using the AI SDK's pattern
-    const syntheticEvent = {
-      target: { value: question },
-    } as React.ChangeEvent<HTMLInputElement>
-    handleInputChange(syntheticEvent)
-    // Submit on next tick after state update
-    setTimeout(() => {
-      const form = document.getElementById("chat-form") as HTMLFormElement | null
-      if (form) form.requestSubmit()
-    }, 10)
+    void append({ role: "user", content: question })
   }
 
   const hasUserMessages = messages.some((m) => m.role === "user")
@@ -118,14 +105,28 @@ export function ChatInterface({
                 ? { backgroundColor: "rgba(79,142,247,0.1)", border: "1px solid rgba(79,142,247,0.2)", color: "var(--text-primary)", fontSize: "15px" }
                 : { backgroundColor: "var(--bg-elevated)", border: "1px solid var(--border-default)", color: "var(--text-body)", fontSize: "15px" }
               }>
-              <div dangerouslySetInnerHTML={{
-                __html: message.content
-                  .replace(/\*\*(.*?)\*\*/g, "<strong style='color:var(--text-primary)'>$1</strong>")
-                  .replace(/`([^`]+)`/g,
-                    `<code style="background:var(--bg-elevated);padding:2px 6px;border-radius:4px;font-family:monospace;font-size:13px;color:var(--cyan)">$1</code>`)
-                  .replace(/\n\n/g, "<br/><br/>")
-                  .replace(/\n/g, "<br/>"),
-              }} />
+              <div>
+                {message.content.split(/(\*\*[^*]+\*\*|`[^`]+`|\n)/g).map((part, index) => {
+                  if (part.startsWith("**") && part.endsWith("**")) {
+                    return <strong key={index} style={{ color: "var(--text-primary)" }}>{part.slice(2, -2)}</strong>
+                  }
+                  if (part.startsWith("`") && part.endsWith("`")) {
+                    return (
+                      <code key={index} style={{
+                        background: "var(--bg-elevated)",
+                        padding: "2px 6px",
+                        borderRadius: "4px",
+                        fontFamily: "monospace",
+                        fontSize: "13px",
+                        color: "var(--cyan)",
+                      }}>
+                        {part.slice(1, -1)}
+                      </code>
+                    )
+                  }
+                  return part === "\n" ? <br key={index} /> : part
+                })}
+              </div>
             </div>
           </div>
         ))}
@@ -162,7 +163,7 @@ export function ChatInterface({
         <div className="px-5 pt-3.5 pb-3 flex flex-wrap gap-2 flex-shrink-0"
           style={{ borderTop: "1px solid var(--border-subtle)" }}>
           {suggestedQuestions.map(q => (
-            <button key={q} onClick={() => handleSuggestionClick(q)}
+          <button key={q} onClick={() => handleSuggestionClick(q)} disabled={isLoading}
               className="text-xs px-3 py-1.5 rounded-full transition-all hover:bg-white/5"
               style={{ backgroundColor: "var(--bg-elevated)", border: "1px solid var(--border-default)", color: "var(--text-secondary)" }}>
               {q}
